@@ -1,0 +1,8 @@
+{
+  "name": "asl_seq_model",
+  "model_path": "C:\\Users\\garga\\Documents\\Maturarbeit\\3\\result_seq2\\asl_seq_model.keras",
+  "final_acc": 0.0,
+  "final_loss": 0.0,
+  "accs": [],
+  "losses": []
+}

@@ -1,0 +1,10 @@
+ASL_Citizen/ASL_Citizen/sequences_smart/
+ASL_Citizen/ASL_Citizen/splits/
+ASL_Citizen/ASL_Citizen/videos/
+ASL_Citizen/ASL_Citizen/use.txt/
+*.keras
+asl_env/
+# Ignore all video files
+*.mp4
+*.avi
+Schreiben Kopien/
