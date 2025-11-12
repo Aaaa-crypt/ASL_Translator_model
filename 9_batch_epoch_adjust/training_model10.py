@@ -1,4 +1,4 @@
-# ------------------------ training_model3_with_test.py ------------------------
+# ------------------------ training_model10.py ------------------------
 import os
 import json
 import tensorflow as tf
