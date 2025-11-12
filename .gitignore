@@ -1,10 +1,14 @@
 ASL_Citizen/ASL_Citizen/sequences_smart/
+ASL_Citizen/ASL_Citizen/sequences_small/
 ASL_Citizen/ASL_Citizen/splits/
 ASL_Citizen/ASL_Citizen/videos/
 ASL_Citizen/ASL_Citizen/use.txt
+ffmpeg-2025-11-10-git-133a0bcb13-full_build/
+
 *.keras
-asl_env/
-# Ignore all video files
 *.mp4
 *.avi
+*.jpg
+
+asl_env/
 Schreiben Kopien/
