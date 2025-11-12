@@ -11,4 +11,5 @@ ffmpeg-2025-11-10-git-133a0bcb13-full_build/
 *.jpg
 
 asl_env/
+augment_env/
 Schreiben Kopien/
