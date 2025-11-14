@@ -1,6 +1,8 @@
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\asl_env\Scripts\Activate.ps1
 
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\augment_env\Scripts\Activate.ps1
 
 to deactivate: 
 deactivate

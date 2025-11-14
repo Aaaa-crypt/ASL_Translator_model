@@ -9,6 +9,7 @@ ffmpeg-2025-11-10-git-133a0bcb13-full_build/
 *.mp4
 *.avi
 *.jpg
+*.h5
 
 asl_env/
 augment_env/
