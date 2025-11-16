@@ -3,6 +3,9 @@ ASL_Citizen/ASL_Citizen/sequences_small/
 ASL_Citizen/ASL_Citizen/splits/
 ASL_Citizen/ASL_Citizen/videos/
 ASL_Citizen/ASL_Citizen/use.txt
+ASL_Citizen/ASL_Citizen/
+ASL_Citizen/ASL_Citizen/MS-ASL/
+ASL_Citizen/ASL_Citizen/asl_sequences/
 ffmpeg-2025-11-10-git-133a0bcb13-full_build/
 
 *.keras
@@ -14,3 +17,4 @@ ffmpeg-2025-11-10-git-133a0bcb13-full_build/
 asl_env/
 augment_env/
 Schreiben Kopien/
+other/
