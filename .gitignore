@@ -1,11 +1,12 @@
+ASL_Citizen/
 ASL_Citizen/ASL_Citizen/sequences_smart/
 ASL_Citizen/ASL_Citizen/sequences_small/
 ASL_Citizen/ASL_Citizen/splits/
 ASL_Citizen/ASL_Citizen/videos/
 ASL_Citizen/ASL_Citizen/use.txt
-ASL_Citizen/ASL_Citizen/
-ASL_Citizen/ASL_Citizen/MS-ASL/
-ASL_Citizen/ASL_Citizen/asl_sequences/
+ASL_Citizen/MS-ASL/
+ASL_Citizen/asl_sequences/
+ASL_Citizen/sequences.zip/
 ffmpeg-2025-11-10-git-133a0bcb13-full_build/
 
 *.keras
