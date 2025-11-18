@@ -16,7 +16,7 @@ IMG_SIZE = (96, 96)
 BATCH_SIZE = 8
 PHASE1_EPOCHS = 12
 PHASE2_EPOCHS = 12
-OUTPUT_DIR = r"C:\Users\garga\Documents\Maturarbeit\17_smalL_dataset\run_2"
+OUTPUT_DIR = r"C:\Users\garga\Documents\Maturarbeit\17_small_dataset\run_2"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 FURTHER_INFO_DIR = os.path.join(OUTPUT_DIR, "further_info")

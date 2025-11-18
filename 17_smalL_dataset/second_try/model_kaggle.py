@@ -23,8 +23,8 @@ FURTHER_INFO_DIR = os.path.join(OUTPUT_DIR, "further_info")
 os.makedirs(FURTHER_INFO_DIR, exist_ok=True)
 
 MODEL_BASE_PATH = os.path.join(OUTPUT_DIR, "asl_seq_model")
-HISTORY_PATH = os.path.join(OUTPUT_DIR, "history.json")
-HISTORY_PHASE1_PATH = os.path.join(OUTPUT_DIR, "history_phase1.json")
+HISTORY_PATH = os.path.join(OUTPUT_DIR, "history.json")                 # combined history file
+HISTORY_PHASE1_PATH = os.path.join(OUTPUT_DIR, "history_phase1.json")   # optional per-phase
 TEST_JSON_PATH = os.path.join(OUTPUT_DIR, "test_metrics.json")
 METRICS_JSON_PATH = os.path.join(FURTHER_INFO_DIR, "metrics.json")
 TEST_BAR_PLOT = os.path.join(OUTPUT_DIR, "test_bar.png")
@@ -81,9 +81,10 @@ def make_dataset(clips, aug=False, repeat=False):
                     img = tf.image.random_brightness(img, 0.06)
                     img = tf.image.random_contrast(img, 0.9, 1.1)
                     img = random_zoom_image(img, (0.96, 1.04))
+                # ensure float32 and apply MobileNetV2 preprocessing
                 img = preprocess_input(tf.cast(img, tf.float32))
                 imgs.append(img)
-            imgs_tensor = tf.stack(imgs)
+            imgs_tensor = tf.stack(imgs)  # (FRAMES_PER_CLIP, H, W, 3)
             lbl_tensor = tf.one_hot(lbl, depth=num_classes)
             yield imgs_tensor, lbl_tensor
 
@@ -144,8 +145,10 @@ def build_model(num_classes, backbone_trainable=True, lr=1e-5):
 model = build_model(num_classes, backbone_trainable=False, lr=1e-4)
 ckpt1 = MODEL_BASE_PATH + "_phase1.weights.h5"
 if os.path.exists(ckpt1):
-    try: os.remove(ckpt1)
-    except Exception: pass
+    try:
+        os.remove(ckpt1)
+    except Exception:
+        pass
 
 cb1 = [
     callbacks.ModelCheckpoint(ckpt1, save_weights_only=True, save_best_only=True),
@@ -162,6 +165,7 @@ hist1 = model.fit(
     callbacks=cb1
 )
 
+# Save phase1 history safely (convert to floats)
 safe_hist1 = {k: [float(v) for v in vs] for k, vs in hist1.history.items()}
 try:
     with open(HISTORY_PHASE1_PATH, "w") as f:
@@ -170,16 +174,9 @@ try:
 except Exception as e:
     print(f"[WARN] Could not save Phase1 history: {e}")
 
-# ---------------- LOAD BEST PHASE 1 WEIGHTS BEFORE PHASE 2 ----------------
-print("[INFO] Loading best Phase 1 weights for fine-tuning...")
-try:
-    model.load_weights(ckpt1)
-    print("[INFO] Successfully loaded Phase 1 best weights.")
-except Exception as e:
-    print(f"[WARN] Could not load Phase 1 best weights: {e}")
-
 # ---------------- TRAIN PHASE 2 ----------------
 print("[INFO] Phase 2: fine-tuning (unfreeze backbone)")
+# make whole model trainable (fine-tune)
 model.trainable = True
 model.compile(optimizer=optimizers.Adam(learning_rate=1e-5),
               loss="categorical_crossentropy",
@@ -187,8 +184,10 @@ model.compile(optimizer=optimizers.Adam(learning_rate=1e-5),
 
 ckpt2 = MODEL_BASE_PATH + "_phase2.weights.h5"
 if os.path.exists(ckpt2):
-    try: os.remove(ckpt2)
-    except Exception: pass
+    try:
+        os.remove(ckpt2)
+    except Exception:
+        pass
 
 cb2 = [
     callbacks.ModelCheckpoint(ckpt2, save_weights_only=True, save_best_only=True),
@@ -204,7 +203,7 @@ hist2 = model.fit(
     callbacks=cb2
 )
 
-# ---------------- COMBINE & SAVE HISTORIES ----------------
+# ---------------- COMBINE & SAVE HISTORIES (your template) ----------------
 combined_history = {}
 for k in set(hist1.history.keys()).union(hist2.history.keys()):
     vals = []
@@ -239,9 +238,10 @@ except Exception as e:
     print(f"[WARN] Could not save validation metrics: {e}")
 
 # ---------------- TEST ----------------
+# Prefer phase2 weights, otherwise fallback to phase1 (option B)
 best_weights_path = ckpt2 if os.path.exists(ckpt2) else ckpt1
 
-test_model = build_model(num_classes, backbone_trainable=True, lr=1e-5)
+test_model = build_model(num_classes, backbone_trainable=True, lr=1e-5)  # same arch
 if os.path.exists(best_weights_path):
     try:
         test_model.load_weights(best_weights_path)
@@ -251,12 +251,7 @@ if os.path.exists(best_weights_path):
 else:
     print("[WARN] No saved weights found; running test with current model instance")
 
-test_metrics = test_model.evaluate(
-    test_ds,
-    steps=math.ceil(len(test_clips) / BATCH_SIZE) if len(test_clips) > 0 else 1,
-    verbose=1
-)
-
+test_metrics = test_model.evaluate(test_ds, steps=math.ceil(len(test_clips) / BATCH_SIZE) if len(test_clips) > 0 else 1, verbose=1)
 try:
     with open(TEST_JSON_PATH, "w") as f:
         json.dump({"loss": float(test_metrics[0]), "accuracy": float(test_metrics[1])}, f, indent=2)
@@ -273,17 +268,16 @@ try:
         plt.plot(combined_history.get('val_accuracy', []), label='Val')
         plt.title("Accuracy")
         plt.legend()
-
         plt.subplot(1,2,2)
         plt.plot(combined_history.get('loss', []), label='Train')
         plt.plot(combined_history.get('val_loss', []), label='Val')
         plt.title("Loss")
         plt.legend()
-
         plt.tight_layout()
         plt.savefig(TRAINING_GRAPHS_PATH)
         print(f"[INFO] Training graphs saved to {TRAINING_GRAPHS_PATH}")
 
+    # Test bar
     plt.figure(figsize=(4,4))
     test_acc = float(test_metrics[1]) if isinstance(test_metrics, (list, tuple)) and len(test_metrics) > 1 else float(test_metrics)
     test_loss = float(test_metrics[0]) if isinstance(test_metrics, (list, tuple)) else 0.0
@@ -291,7 +285,6 @@ try:
     plt.title("Test Metrics")
     plt.savefig(TEST_BAR_PLOT)
     plt.show()
-
     print(f"[INFO] Test bar plot saved to {TEST_BAR_PLOT}")
 except Exception as e:
     print(f"[WARN] Could not create/save plots: {e}")
