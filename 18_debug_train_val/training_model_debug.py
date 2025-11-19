@@ -19,12 +19,12 @@ PHASE1_EPOCHS = 5
 PHASE2_EPOCHS = 10
 N_FOLDS = 3  # not used in this single-run script, left for compatibility
 MAX_CLASSES = 200
-OUTPUT_DIR = r"C:\Users\garga\Documents\Maturarbeit\18_debug_train_val"
+OUTPUT_DIR = r"C:\Users\garga\Documents\Maturarbeit\19"
 FURTHER_INFO_DIR = os.path.join(OUTPUT_DIR, "further_info")
 os.makedirs(FURTHER_INFO_DIR, exist_ok=True)
 
-MODEL_BASE_PATH = os.path.join(OUTPUT_DIR, "asl_seq_model1_debug")
-HISTORY_BASE_PATH = os.path.join(OUTPUT_DIR, "history_seq_debug")
+MODEL_BASE_PATH = os.path.join(OUTPUT_DIR, "debug")
+HISTORY_BASE_PATH = os.path.join(OUTPUT_DIR, "history_debug")
 CV_SUMMARY_PATH = os.path.join(OUTPUT_DIR, "cv_summary_mobilenet_debug.json")
 TEST_JSON_PATH = os.path.join(OUTPUT_DIR, "test_debug.json")
 TEST_BAR_PLOT = os.path.join(OUTPUT_DIR, "test_bar_graph_debug.png")

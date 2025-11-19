@@ -4,9 +4,9 @@ import shutil
 
 # ---------------- CONFIG ----------------
 SEQUENCES_DIR = r"C:\Users\garga\Documents\Maturarbeit\ASL_Citizen\ASL_Citizen\sequences_smart"
-DEBUG_VAL_DIR = os.path.join(SEQUENCES_DIR, "debug_val")
+DEBUG_VAL_DIR = os.path.join(SEQUENCES_DIR, "debug_val2")
 MAX_CLASSES = 200
-TRAIN_RATIO = 0.2  # fraction of debug_val clips sampled from train
+TRAIN_RATIO = 0.8  # fraction of debug_val clips sampled from train
 FRAMES_PER_CLIP = 12  # just for reference
 
 # ---------------- UTILS ----------------
