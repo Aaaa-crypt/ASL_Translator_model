@@ -1,4 +1,4 @@
-# webcam_live.py
+# webcam.py
 import cv2
 import numpy as np
 import os

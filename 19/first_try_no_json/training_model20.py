@@ -1,4 +1,4 @@
-# training_model20_fixed_savehist.py
+# training_model20_fixed.py
 import os
 import json
 import math
@@ -22,11 +22,8 @@ OUTPUT_DIR = r"C:\Users\garga\Documents\Maturarbeit\19"
 FURTHER_INFO_DIR = os.path.join(OUTPUT_DIR, "further_info")
 os.makedirs(FURTHER_INFO_DIR, exist_ok=True)
 
-MODEL_BASE_PATH = os.path.join(OUTPUT_DIR, "model20")
-HISTORY_BASE_PATH = os.path.join(OUTPUT_DIR, "history20")
-HISTORY_PHASE1_PATH = HISTORY_BASE_PATH + "20_phase1.json"
-HISTORY_PHASE2_PATH = HISTORY_BASE_PATH + "20_phase2.json"
-HISTORY_FULL_PATH = HISTORY_BASE_PATH + "history_full.json"
+MODEL_BASE_PATH = os.path.join(OUTPUT_DIR, "asl_seq_model20")
+HISTORY_BASE_PATH = os.path.join(OUTPUT_DIR, "history_seq20")
 TEST_JSON_PATH = os.path.join(OUTPUT_DIR, "test20.json")
 TEST_BAR_PLOT = os.path.join(OUTPUT_DIR, "test_bar_graph20.png")
 
@@ -169,7 +166,7 @@ def build_model(num_classes, backbone_trainable=True, lr=1e-5):
     x = layers.Dropout(0.5)(x)
     outputs = layers.Dense(num_classes, activation='softmax')(x)
     model = models.Model(frames_input, outputs)
-    model.compile(optimizer=optimizers.Adam(learning_rate=lr), loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=optimizers.Adam(lr), loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
 # ---------------- DATASETS ----------------
@@ -177,8 +174,8 @@ train_ds = create_tf_dataset_from_list(train_clips, repeat=True, augment=True)
 val_ds = create_tf_dataset_from_list(val_clips, repeat=False, augment=False)
 test_ds = create_tf_dataset_from_list(test_clips, repeat=False, augment=False)
 
-steps_per_epoch = math.ceil(len(train_clips)/BATCH_SIZE) if len(train_clips) > 0 else 1
-val_steps = math.ceil(len(val_clips)/BATCH_SIZE) if len(val_clips) > 0 else 1
+steps_per_epoch = math.ceil(len(train_clips)/BATCH_SIZE)
+val_steps = math.ceil(len(val_clips)/BATCH_SIZE)
 
 # ---------------- CLASS WEIGHTS ----------------
 try:
@@ -191,11 +188,9 @@ except Exception:
 
 # ---------------- CALLBACKS ----------------
 def make_ckpt_path(phase="phase1"):
-    # must end with .weights.h5 when save_weights_only=True
-    return f"{MODEL_BASE_PATH}_{phase}.weights.h5"
+    return f"{MODEL_BASE_PATH}_{phase}.h5"
 
 # ---------------- TRAINING ----------------
-print("[INFO] Building model (phase1, frozen backbone)...")
 model = build_model(num_classes, backbone_trainable=False, lr=1e-4)
 ckpt_phase1 = make_ckpt_path("phase1")
 callbacks_phase1 = [
@@ -211,27 +206,16 @@ hist1 = model.fit(
     steps_per_epoch=steps_per_epoch,
     validation_steps=val_steps,
     callbacks=callbacks_phase1,
-    class_weight=class_weights,
-    verbose=1
+    class_weight=class_weights
 )
 
-# Save phase1 history
-try:
-    safe_h1 = {k: [float(v) for v in vs] for k, vs in hist1.history.items()}
-    with open(HISTORY_PHASE1_PATH, "w") as f:
-        json.dump(safe_h1, f, indent=2)
-    print(f"[INFO] Phase1 history saved to {HISTORY_PHASE1_PATH}")
-except Exception as e:
-    print(f"[WARN] Could not save Phase1 history: {e}")
-
 # Phase 2: Fine-tune backbone
-print("[INFO] Unfreezing backbone and recompiling for fine-tuning...")
 for layer in model.layers:
     if isinstance(layer, layers.TimeDistributed):
         if hasattr(layer.layer, "trainable"):
             layer.layer.trainable = True
 
-model.compile(optimizer=optimizers.Adam(learning_rate=1e-5), loss='categorical_crossentropy', metrics=['accuracy'])
+model.compile(optimizer=optimizers.Adam(1e-5), loss='categorical_crossentropy', metrics=['accuracy'])
 ckpt_phase2 = make_ckpt_path("phase2")
 callbacks_phase2 = [
     callbacks.EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True),
@@ -246,102 +230,52 @@ hist2 = model.fit(
     steps_per_epoch=steps_per_epoch,
     validation_steps=val_steps,
     callbacks=callbacks_phase2,
-    class_weight=class_weights,
-    verbose=1
+    class_weight=class_weights
 )
 
-# Save phase2 history
-try:
-    safe_h2 = {k: [float(v) for v in vs] for k, vs in hist2.history.items()}
-    with open(HISTORY_PHASE2_PATH, "w") as f:
-        json.dump(safe_h2, f, indent=2)
-    print(f"[INFO] Phase2 history saved to {HISTORY_PHASE2_PATH}")
-except Exception as e:
-    print(f"[WARN] Could not save Phase2 history: {e}")
-
-# ---------------- COMBINE & SAVE FULL HISTORY ----------------
-combined_history = {}
-for k in set(hist1.history.keys()).union(hist2.history.keys()):
-    vals = []
-    vals.extend([float(v) for v in hist1.history.get(k, [])])
-    vals.extend([float(v) for v in hist2.history.get(k, [])])
-    combined_history[k] = vals
-
-try:
-    with open(HISTORY_FULL_PATH, "w") as f:
-        json.dump(combined_history, f, indent=2)
-    print(f"[INFO] Full combined history saved to {HISTORY_FULL_PATH}")
-except Exception as e:
-    print(f"[WARN] Could not save full history: {e}")
-
 # ---------------- EVALUATION ----------------
-print("[INFO] Running validation predictions for metrics...")
 val_preds, val_labels = [], []
 for x_batch, y_batch in val_ds:
-    y_pred = model.predict(x_batch, verbose=0)
+    y_pred = model.predict(x_batch)
     val_preds.extend(np.argmax(y_pred, axis=1))
     val_labels.extend(np.argmax(y_batch.numpy(), axis=1))
 
 metrics_info = {
-    'precision': float(precision_score(val_labels, val_preds, average='weighted', zero_division=0)),
-    'recall': float(recall_score(val_labels, val_preds, average='weighted', zero_division=0)),
-    'f1_score': float(f1_score(val_labels, val_preds, average='weighted', zero_division=0))
+    'precision': precision_score(val_labels, val_preds, average='weighted', zero_division=0),
+    'recall': recall_score(val_labels, val_preds, average='weighted', zero_division=0),
+    'f1_score': f1_score(val_labels, val_preds, average='weighted', zero_division=0)
 }
-try:
-    with open(os.path.join(FURTHER_INFO_DIR, 'metrics.json'), 'w') as f:
-        json.dump(metrics_info, f, indent=2)
-    print(f"[INFO] Validation metrics saved to {os.path.join(FURTHER_INFO_DIR, 'metrics.json')}")
-except Exception as e:
-    print(f"[WARN] Could not save validation metrics: {e}")
+with open(os.path.join(FURTHER_INFO_DIR, 'metrics.json'), 'w') as f:
+    json.dump(metrics_info, f, indent=2)
 
 # ---------------- TEST ----------------
 best_ckpt = ckpt_phase2 if os.path.exists(ckpt_phase2) else ckpt_phase1
 test_model = build_model(num_classes, backbone_trainable=True, lr=1e-5)
-if os.path.exists(best_ckpt):
-    try:
-        test_model.load_weights(best_ckpt)
-        print(f"[INFO] Loaded best weights from {best_ckpt} for testing.")
-    except Exception as e:
-        print(f"[WARN] Could not load best weights ({best_ckpt}): {e}")
-else:
-    print("[WARN] No checkpoint found, test will use current model weights (may be untrained).")
-
-test_metrics = test_model.evaluate(test_ds, steps=math.ceil(len(test_clips)/BATCH_SIZE) if len(test_clips)>0 else 1, verbose=1)
-try:
-    with open(TEST_JSON_PATH, "w") as f:
-        json.dump({"loss": float(test_metrics[0]), "accuracy": float(test_metrics[1])}, f, indent=2)
-    print(f"[INFO] Test metrics saved to {TEST_JSON_PATH}")
-except Exception as e:
-    print(f"[WARN] Could not save test metrics: {e}")
+test_model.load_weights(best_ckpt)
+test_metrics = test_model.evaluate(test_ds, steps=math.ceil(len(test_clips)/BATCH_SIZE), verbose=1)
+with open(TEST_JSON_PATH, "w") as f:
+    json.dump({"loss": float(test_metrics[0]), "accuracy": float(test_metrics[1])}, f, indent=2)
 
 # ---------------- PLOTS ----------------
-try:
-    # training graphs (accuracy & loss)
-    plt.figure(figsize=(10,4))
-    plt.subplot(1,2,1)
-    plt.plot(combined_history.get('accuracy', []), label='Train')
-    plt.plot(combined_history.get('val_accuracy', []), label='Val')
-    plt.title("Accuracy")
-    plt.legend()
-    plt.subplot(1,2,2)
-    plt.plot(combined_history.get('loss', []), label='Train')
-    plt.plot(combined_history.get('val_loss', []), label='Val')
-    plt.title("Loss")
-    plt.legend()
-    plt.tight_layout()
-    training_graph_path = os.path.join(OUTPUT_DIR, "training_graphs.png")
-    plt.savefig(training_graph_path)
-    print(f"[INFO] Training graphs saved to {training_graph_path}")
-    plt.close()
+plt.figure(figsize=(10,4))
+plt.subplot(1,2,1)
+plt.plot(hist1.history.get('accuracy', []) + hist2.history.get('accuracy', []), label='Train')
+plt.plot(hist1.history.get('val_accuracy', []) + hist2.history.get('val_accuracy', []), label='Val')
+plt.title("Accuracy")
+plt.legend()
+plt.subplot(1,2,2)
+plt.plot(hist1.history.get('loss', []) + hist2.history.get('loss', []), label='Train')
+plt.plot(hist1.history.get('val_loss', []) + hist2.history.get('val_loss', []), label='Val')
+plt.title("Loss")
+plt.legend()
+plt.tight_layout()
+plt.savefig(os.path.join(OUTPUT_DIR, "training_graphs.png"))
+plt.show()
 
-    # test bar plot
-    plt.figure(figsize=(6,4))
-    plt.bar(["Accuracy","Loss"], [float(test_metrics[1]), float(test_metrics[0])])
-    plt.title("Test Metrics")
-    plt.savefig(TEST_BAR_PLOT)
-    print(f"[INFO] Test bar plot saved to {TEST_BAR_PLOT}")
-    plt.close()
-except Exception as e:
-    print(f"[WARN] Could not create or save plots: {e}")
+plt.figure(figsize=(6,4))
+plt.bar(["Accuracy","Loss"], [float(test_metrics[1]), float(test_metrics[0])])
+plt.title("Test Metrics")
+plt.savefig(TEST_BAR_PLOT)
+plt.show()
 
 print("✅ Done.")
