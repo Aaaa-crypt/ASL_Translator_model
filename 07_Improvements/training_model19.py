@@ -15,19 +15,19 @@ SEQUENCES_DIR = r"C:\Users\garga\Documents\Maturarbeit\ASL_Citizen\ASL_Citizen\s
 FRAMES_PER_CLIP = 12
 IMG_SIZE = (96, 96)
 BATCH_SIZE = 16
-PHASE1_EPOCHS = 5
-PHASE2_EPOCHS = 10
+PHASE1_EPOCHS = 20
+PHASE2_EPOCHS = 40
 N_FOLDS = 3  # not used in this single-run script, left for compatibility
 MAX_CLASSES = 200
-OUTPUT_DIR = r"C:\Users\garga\Documents\Maturarbeit\9_debug_train_val"
+OUTPUT_DIR = r"C:\Users\garga\Documents\Maturarbeit\07_Improvements"
 FURTHER_INFO_DIR = os.path.join(OUTPUT_DIR, "further_info")
 os.makedirs(FURTHER_INFO_DIR, exist_ok=True)
 
-MODEL_BASE_PATH = os.path.join(OUTPUT_DIR, "debug")
-HISTORY_BASE_PATH = os.path.join(OUTPUT_DIR, "history_debug")
-CV_SUMMARY_PATH = os.path.join(OUTPUT_DIR, "cv_summary_mobilenet_debug.json")
-TEST_JSON_PATH = os.path.join(OUTPUT_DIR, "test_debug.json")
-TEST_BAR_PLOT = os.path.join(OUTPUT_DIR, "test_bar_graph_debug.png")
+MODEL_BASE_PATH = os.path.join(OUTPUT_DIR, "asl_seq_model19)
+HISTORY_BASE_PATH = os.path.join(OUTPUT_DIR, "history_seq19")
+CV_SUMMARY_PATH = os.path.join(OUTPUT_DIR, "cv_summary_mobilenet19.json")
+TEST_JSON_PATH = os.path.join(OUTPUT_DIR, "test19.json")
+TEST_BAR_PLOT = os.path.join(OUTPUT_DIR, "test_bar_graph19.png")
 
 # ---------------- HELPERS ----------------
 def get_clip_paths_for_split(split="train"):
@@ -55,7 +55,7 @@ def get_clip_paths_for_split(split="train"):
 
 # load lists for train/val/test
 train_clips, class_names_train = get_clip_paths_for_split("train")
-val_clips, class_names_val = get_clip_paths_for_split("debug_val") # use debug_val here
+val_clips, class_names_val = get_clip_paths_for_split("val")
 test_clips, class_names_test = get_clip_paths_for_split("test")
 
 # quick consistency check
