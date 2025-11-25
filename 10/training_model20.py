@@ -1,4 +1,4 @@
-# training_model21.py
+# training_model20.py
 import os
 import json
 import math
@@ -18,17 +18,17 @@ BATCH_SIZE = 16
 PHASE1_EPOCHS = 20
 PHASE2_EPOCHS = 40
 MAX_CLASSES = 200
-OUTPUT_DIR = r"C:\Users\garga\Documents\Maturarbeit\20_simple_model"
+OUTPUT_DIR = r"C:\Users\garga\Documents\Maturarbeit\10"
 FURTHER_INFO_DIR = os.path.join(OUTPUT_DIR, "further_info")
 os.makedirs(FURTHER_INFO_DIR, exist_ok=True)
 
-MODEL_BASE_PATH = os.path.join(OUTPUT_DIR, "model22")
-HISTORY_BASE_PATH = os.path.join(OUTPUT_DIR, "history")
-HISTORY_PHASE1_PATH = HISTORY_BASE_PATH + "phase1.json"
-HISTORY_PHASE2_PATH = HISTORY_BASE_PATH + "phase2.json"
+MODEL_BASE_PATH = os.path.join(OUTPUT_DIR, "model20")
+HISTORY_BASE_PATH = os.path.join(OUTPUT_DIR, "history20")
+HISTORY_PHASE1_PATH = HISTORY_BASE_PATH + "20_phase1.json"
+HISTORY_PHASE2_PATH = HISTORY_BASE_PATH + "20_phase2.json"
 HISTORY_FULL_PATH = HISTORY_BASE_PATH + "history_full.json"
-TEST_JSON_PATH = os.path.join(OUTPUT_DIR, "test.json")
-TEST_BAR_PLOT = os.path.join(OUTPUT_DIR, "test_bar.png")
+TEST_JSON_PATH = os.path.join(OUTPUT_DIR, "test20.json")
+TEST_BAR_PLOT = os.path.join(OUTPUT_DIR, "test_bar_graph20.png")
 
 # ---------------- HELPERS ----------------
 def get_clip_paths_for_split(split="train"):
@@ -63,6 +63,7 @@ print(f"[INFO] Using {num_classes} classes (MAX_CLASSES={MAX_CLASSES})")
 
 # ---------------- DATA AUGMENTATION ----------------
 def random_zoom_image(img, zoom_range=(0.96, 1.04)):
+    """Pure TF zoom (no variables created inside tf.function)."""
     h, w = IMG_SIZE
     zoom_factor = tf.random.uniform([], zoom_range[0], zoom_range[1])
     new_h = tf.cast(tf.cast(h, tf.float32) * zoom_factor, tf.int32)
@@ -79,13 +80,14 @@ def load_clip_py(frame_paths, label):
         img_raw = tf.io.read_file(frame_paths[idx])
         img = tf.image.decode_jpeg(img_raw, channels=3)
         img = tf.image.resize(img, IMG_SIZE)
+        # Mild augmentations
         img = tf.image.random_flip_left_right(img)
         img = tf.image.random_brightness(img, max_delta=0.06)
         img = tf.image.random_contrast(img, lower=0.9, upper=1.1)
         img = random_zoom_image(img)
         img = preprocess_input(img)
         clip.append(img)
-    clip = tf.stack(clip)
+    clip = tf.stack(clip)  # (T, H, W, C)
     label_onehot = tf.one_hot(label, depth=num_classes)
     return clip, label_onehot
 
@@ -133,9 +135,27 @@ def create_tf_dataset_from_list(clip_list, repeat=False, augment=False):
     return ds
 
 # ---------------- MODEL ----------------
+def temporal_conv_block(x, filters=128, kernel_size=3):
+    x = layers.Conv1D(filters, kernel_size, padding="same", activation="relu")(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Conv1D(filters, kernel_size, padding="same", activation="relu")(x)
+    x = layers.BatchNormalization()(x)
+    return x
+
+class TemporalAttention(layers.Layer):
+    def __init__(self, units):
+        super().__init__()
+        self.W = layers.Dense(units, activation='tanh')
+        self.V = layers.Dense(1)
+
+    def call(self, inputs):
+        score = self.V(self.W(inputs))
+        weights = tf.nn.softmax(score, axis=1)
+        context = tf.reduce_sum(weights * inputs, axis=1)
+        return context
+
 def build_model(num_classes, backbone_trainable=True, lr=1e-5):
     frames_input = layers.Input(shape=(FRAMES_PER_CLIP, IMG_SIZE[0], IMG_SIZE[1], 3), name="frames")
-    
     backbone = tf.keras.applications.MobileNetV2(
         input_shape=(IMG_SIZE[0], IMG_SIZE[1], 3),
         include_top=False, weights='imagenet'
@@ -143,22 +163,13 @@ def build_model(num_classes, backbone_trainable=True, lr=1e-5):
     backbone.trainable = backbone_trainable
     x = layers.TimeDistributed(backbone)(frames_input)
     x = layers.TimeDistributed(layers.GlobalAveragePooling2D())(x)
-    
-    x = layers.Conv1D(64, kernel_size=3, padding="same", activation="relu")(x)
-    x = layers.BatchNormalization()(x)
-    
-    x = layers.LSTM(64, return_sequences=False)(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.Dropout(0.3)(x)
-    
-    x = layers.Dense(64, activation='relu')(x)
-    x = layers.Dropout(0.3)(x)
+    x = temporal_conv_block(x, filters=256, kernel_size=3)
+    x = layers.Bidirectional(layers.LSTM(128, return_sequences=True))(x)
+    x = TemporalAttention(128)(x)
+    x = layers.Dropout(0.5)(x)
     outputs = layers.Dense(num_classes, activation='softmax')(x)
-    
     model = models.Model(frames_input, outputs)
-    model.compile(optimizer=optimizers.Adam(learning_rate=lr),
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
+    model.compile(optimizer=optimizers.Adam(learning_rate=lr), loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
 # ---------------- DATASETS ----------------
@@ -180,6 +191,7 @@ except Exception:
 
 # ---------------- CALLBACKS ----------------
 def make_ckpt_path(phase="phase1"):
+    # must end with .weights.h5 when save_weights_only=True
     return f"{MODEL_BASE_PATH}_{phase}.weights.h5"
 
 # ---------------- TRAINING ----------------
@@ -304,6 +316,7 @@ except Exception as e:
 
 # ---------------- PLOTS ----------------
 try:
+    # training graphs (accuracy & loss)
     plt.figure(figsize=(10,4))
     plt.subplot(1,2,1)
     plt.plot(combined_history.get('accuracy', []), label='Train')
@@ -321,6 +334,7 @@ try:
     print(f"[INFO] Training graphs saved to {training_graph_path}")
     plt.close()
 
+    # test bar plot
     plt.figure(figsize=(6,4))
     plt.bar(["Accuracy","Loss"], [float(test_metrics[1]), float(test_metrics[0])])
     plt.title("Test Metrics")

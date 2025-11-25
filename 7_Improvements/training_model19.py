@@ -14,20 +14,20 @@ from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 SEQUENCES_DIR = r"C:\Users\garga\Documents\Maturarbeit\ASL_Citizen\ASL_Citizen\sequences_smart"
 FRAMES_PER_CLIP = 12
 IMG_SIZE = (96, 96)
-BATCH_SIZE = 8
-PHASE1_EPOCHS = 12
-PHASE2_EPOCHS = 12
+BATCH_SIZE = 16
+PHASE1_EPOCHS = 20
+PHASE2_EPOCHS = 40
 N_FOLDS = 3  # not used in this single-run script, left for compatibility
 MAX_CLASSES = 200
-OUTPUT_DIR = r"C:\Users\garga\Documents\Maturarbeit\15"
+OUTPUT_DIR = r"C:\Users\garga\Documents\Maturarbeit\7_Improvements"
 FURTHER_INFO_DIR = os.path.join(OUTPUT_DIR, "further_info")
 os.makedirs(FURTHER_INFO_DIR, exist_ok=True)
 
-MODEL_BASE_PATH = os.path.join(OUTPUT_DIR, "asl_seq_model18")
-HISTORY_BASE_PATH = os.path.join(OUTPUT_DIR, "history_seq18")
-CV_SUMMARY_PATH = os.path.join(OUTPUT_DIR, "cv_summary_mobilenet18.json")
-TEST_JSON_PATH = os.path.join(OUTPUT_DIR, "test18.json")
-TEST_BAR_PLOT = os.path.join(OUTPUT_DIR, "test_bar_graph18.png")
+MODEL_BASE_PATH = os.path.join(OUTPUT_DIR, "asl_seq_model19)
+HISTORY_BASE_PATH = os.path.join(OUTPUT_DIR, "history_seq19")
+CV_SUMMARY_PATH = os.path.join(OUTPUT_DIR, "cv_summary_mobilenet19.json")
+TEST_JSON_PATH = os.path.join(OUTPUT_DIR, "test19.json")
+TEST_BAR_PLOT = os.path.join(OUTPUT_DIR, "test_bar_graph19.png")
 
 # ---------------- HELPERS ----------------
 def get_clip_paths_for_split(split="train"):
