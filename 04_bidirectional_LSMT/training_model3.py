@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 # -------- CONFIG --------
 SEQUENCES_DIR = r"C:\Users\garga\Documents\Maturarbeit\ASL_Citizen\ASL_Citizen\sequences_smart"
-FRAMES_PER_CLIP = 10        # increased for better temporal info
+FRAMES_PER_CLIP = 6        # increased for better temporal info
 IMG_SIZE = (96, 96)      
 BATCH_SIZE = 16             # larger batch for smoother gradients
 EPOCHS = 6                  # for quick debugging

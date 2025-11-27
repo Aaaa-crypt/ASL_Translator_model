@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 # -------- CONFIG --------
 SEQUENCES_DIR = r"C:\Users\garga\Documents\Maturarbeit\ASL_Citizen\ASL_Citizen\sequences_smart"
-FRAMES_PER_CLIP = 5
+FRAMES_PER_CLIP = 6
 IMG_SIZE = (96, 96)      # smaller = faster
 BATCH_SIZE = 8
 EPOCHS = 15
