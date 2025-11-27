@@ -19,7 +19,7 @@ PHASE1_EPOCHS = 5
 PHASE2_EPOCHS = 10
 N_FOLDS = 3  # not used in this single-run script, left for compatibility
 MAX_CLASSES = 200
-OUTPUT_DIR = r"C:\Users\garga\Documents\Maturarbeit\09_debug_train_val"
+OUTPUT_DIR = r"C:\Users\garga\Documents\Maturarbeit\08_debug_train_val"
 FURTHER_INFO_DIR = os.path.join(OUTPUT_DIR, "further_info")
 os.makedirs(FURTHER_INFO_DIR, exist_ok=True)
 
