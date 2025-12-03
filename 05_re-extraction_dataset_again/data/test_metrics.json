@@ -1,0 +1,6 @@
+{
+  "loss": 4.607104301452637,
+  "accuracy": 0.02368421107530594,
+  "num_test_samples": 380,
+  "num_classes": 100
+}
