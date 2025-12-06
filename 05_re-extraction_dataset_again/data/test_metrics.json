@@ -1,4 +1,5 @@
 {
+  "name": "05_re-extraction_dataset_again",
   "loss": 4.607104301452637,
   "accuracy": 0.02368421107530594,
   "num_test_samples": 380,

@@ -1,0 +1,7 @@
+{
+  "name": "04_bidirectional_LSTM",
+  "loss": 4.6755242347717285,
+  "accuracy": 0.0,
+  "num_test_samples": 227,
+  "num_classes": 100
+}

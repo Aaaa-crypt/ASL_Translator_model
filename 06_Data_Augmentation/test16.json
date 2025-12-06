@@ -1,4 +1,6 @@
 {
+  "name": "06_Data_Augmentation", 
   "loss": 5.313509464263916,
-  "accuracy": 0.005201560445129871
+  "accuracy": 0.005201560445129871,
+  "num_classes": 200
 }

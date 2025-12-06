@@ -1,4 +1,7 @@
 # plot_relative_accuracy.py
+
+#add 04, 03,02 and 01 models
+
 import os
 import json
 import matplotlib.pyplot as plt
