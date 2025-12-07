@@ -1,0 +1,56 @@
+[
+  {
+    "model_name": "train_asl_model",
+    "num_classes": 26,
+    "accuracy": 0.28846153846153844,
+    "relative_accuracy": 0.25999999999999995
+  },
+  {
+    "model_name": "train_from_sequences1",
+    "num_classes": 2730,
+    "accuracy": 0.0003351206541992724,
+    "relative_accuracy": -3.119113742615843e-05
+  },
+  {
+    "model_name": "train_from_sequences5",
+    "num_classes": 200,
+    "accuracy": 0.0043196543119847775,
+    "relative_accuracy": -0.000683764510568063
+  },
+  {
+    "model_name": "training_model3",
+    "num_classes": 100,
+    "accuracy": 0.0,
+    "relative_accuracy": -0.010101010101010102
+  },
+  {
+    "model_name": "training_model4",
+    "num_classes": 100,
+    "accuracy": 0.02368421107530594,
+    "relative_accuracy": 0.013822435429601957
+  },
+  {
+    "model_name": "training_model16",
+    "num_classes": 2728,
+    "accuracy": 0.005201560445129871,
+    "relative_accuracy": 0.004836764537702343
+  },
+  {
+    "model_name": "training_model19",
+    "num_classes": 2728,
+    "accuracy": 0.09102730453014374,
+    "relative_accuracy": 0.09069398120947272
+  },
+  {
+    "model_name": "training_model_debug",
+    "num_classes": 100,
+    "accuracy": 0.02368421107530594,
+    "relative_accuracy": 0.013822435429601957
+  },
+  {
+    "model_name": "model_kaggle",
+    "num_classes": 47,
+    "accuracy": 0.6100628972053528,
+    "relative_accuracy": 0.6015860036663387
+  }
+]

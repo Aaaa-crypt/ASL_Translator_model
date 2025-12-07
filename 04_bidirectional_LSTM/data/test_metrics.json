@@ -1,5 +1,5 @@
 {
-  "name": "04_bidirectional_LSTM",
+  "name": "training_model3",
   "loss": 4.6755242347717285,
   "accuracy": 0.0,
   "num_test_samples": 227,

@@ -1,6 +1,6 @@
 
 {
-  "name": "03_re-extraction_of_dataset",
+  "name": "train_from_sequences5",
   "loss": 5.313884735107422,
   "accuracy": 0.0043196543119847775,
   "num_test_samples": 463,

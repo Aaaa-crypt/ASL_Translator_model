@@ -3,5 +3,5 @@
   "accuracy": 0.0003351206541992724,
   "num_test_samples": 5968,
   "num_classes": 2730,
-  "name": "02_video_dataset_with_image_sequences"
+  "name": "train_from_sequences1"
 }

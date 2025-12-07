@@ -1,7 +1,5 @@
 # plot_relative_accuracy.py
 
-#add 04, 03,02 and 01 models
-
 import os
 import json
 import matplotlib.pyplot as plt
@@ -16,6 +14,31 @@ BAR_COLOR = "#1f77b4"
 
 # ---------------- MODEL DATA ----------------
 models_info = [
+    {
+        "model_name": "train_asl_model",
+        "num_classes": 26,
+        "accuracy": 0.28846153846153844
+    },
+    {
+        "model_name": "train_from_sequences1",
+        "num_classes": 2730,
+        "accuracy": 0.0003351206541992724
+    },
+    {
+        "model_name": "train_from_sequences5",
+        "num_classes": 200,
+        "accuracy": 0.0043196543119847775
+    },
+    {
+        "model_name": "training_model3",
+        "num_classes": 100,
+        "accuracy": 0.0
+    },
+    {
+        "model_name": "training_model4",
+        "num_classes": 100,
+        "accuracy": 0.02368421107530594
+    },
     {
         "model_name": "training_model16",
         "num_classes": 2728,
@@ -32,16 +55,13 @@ models_info = [
         "accuracy": 0.02368421107530594
     },
     {
-        "model_name": "training_model4",
-        "num_classes": 100,
-        "accuracy": 0.02368421107530594
-    },
-    {
         "model_name": "model_kaggle",
         "num_classes": 47,
         "accuracy": 0.6100628972053528
     }
 ]
+
+
 
 # ---------------- CALCULATE RELATIVE SCORES ----------------
 labels = []

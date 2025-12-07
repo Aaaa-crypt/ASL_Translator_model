@@ -6,12 +6,11 @@ from tensorflow.keras import layers, models
 import matplotlib.pyplot as plt
 
 # --- Paths ---
-# Use your project-relative path; this matches your actual folder layout
 DATA_DIR = "archive/asl_alphabet_train"
 
 IMG_HEIGHT, IMG_WIDTH = 64, 64
 BATCH_SIZE = 32
-EPOCHS = 5  # adjust later if you like
+EPOCHS = 5  # adjust as needed
 
 # --- Data ---
 datagen = ImageDataGenerator(rescale=1./255, validation_split=0.2)
@@ -32,12 +31,10 @@ val_data = datagen.flow_from_directory(
     subset='validation'
 )
 
-# (Optional) sanity check: you should see 29 classes (A-Z, del, nothing, space)
 print("Classes found:", train_data.class_indices)
 print("Number of classes:", len(train_data.class_indices))
 
 # --- Model ---
-# Use an explicit Input layer (avoids the Keras warning)
 model = models.Sequential([
     layers.Input(shape=(IMG_HEIGHT, IMG_WIDTH, 3)),
     layers.Conv2D(32, (3, 3), activation='relu'),
@@ -63,40 +60,49 @@ history = model.fit(
     epochs=EPOCHS
 )
 
-# --- Save model in modern Keras format (recommended) ---
+# --- Save model ---
 model.save("asl_model.keras")
 
-# (Optionally also save HDF5 if you want)
-# model.save("asl_model.h5")
-
-# --- Save class names in the exact order the model uses ---
-# Invert mapping index->class and write an ordered list by index
+# --- Save class names ---
 idx_to_class = {v: k for k, v in train_data.class_indices.items()}
 class_names = [idx_to_class[i] for i in range(len(idx_to_class))]
+
 with open("class_names.json", "w", encoding="utf-8") as f:
     json.dump(class_names, f, ensure_ascii=False, indent=2)
 
 print("Saved class names:", class_names)
 
-# --- Plot & save accuracy and loss curves ---
-# Accuracy
+# --- Save training metrics to JSON ---
+training_metrics = history.history
+
+with open("training_metrics.json", "w", encoding="utf-8") as f:
+    json.dump(training_metrics, f, indent=2)
+
+print("Saved training metrics → training_metrics.json")
+
+# --- Plot accuracy ---
 plt.figure()
-plt.plot(history.history['accuracy'], label='Train Acc')
-plt.plot(history.history['val_accuracy'], label='Val Acc')
-plt.title('Accuracy')
+plt.plot(history.history['accuracy'], label='Train Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.title('Model Accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.legend()
 plt.savefig("accuracy.png", dpi=150)
-plt.show()
+plt.close()
 
-# Loss
+# --- Plot loss ---
 plt.figure()
 plt.plot(history.history['loss'], label='Train Loss')
-plt.plot(history.history['val_loss'], label='Val Loss')
-plt.title('Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+plt.title('Model Loss')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.legend()
 plt.savefig("loss.png", dpi=150)
-plt.show()
+plt.close()
+
+print("Saved accuracy.png and loss.png")
+print("Training complete!")
+
+
