@@ -1,1 +1,0 @@
-# Design and Evaluation of a Deep Learning System for Image Classification
