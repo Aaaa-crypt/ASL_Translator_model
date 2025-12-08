@@ -1,4 +1,4 @@
-# training_model21.py
+# training_model21.py - COMPLETE VERSION (ALL FUNCTIONS)
 import os
 import json
 import math
@@ -226,21 +226,21 @@ test_metrics = [test_loss, test_acc]
 with open(TEST_JSON_PATH, "w") as f:
     json.dump({"loss": test_loss, "accuracy": test_acc}, f, indent=2)
 
-# ---------------- TRAINING GRAPHS - FIXED COLORS ----------------
+# ---------------- TRAINING GRAPHS - EXACT FORMAT ----------------
 hist = combined
 plt.figure(figsize=(10, 4))
 
 plt.subplot(1, 2, 1)
-plt.plot(hist.get('acc', []), label='Train Accuracy', color='#1f77b4')  # BLUE for TRAIN
-plt.plot(hist.get('val_acc', []), label='Validation Accuracy', color='#e58739')  # ORANGE for VAL
+plt.plot(hist.get('acc', []), label='Train Accuracy', color='orange')
+plt.plot(hist.get('val_acc', []), label='Validation Accuracy', color='blue')
 plt.title("Accuracy over Epochs")
 plt.xlabel("Epoch")
 plt.ylabel("Accuracy")
 plt.legend()
 
 plt.subplot(1, 2, 2)
-plt.plot(hist.get('loss', []), label='Train Loss', color='#1f77b4')  # BLUE for TRAIN
-plt.plot(hist.get('val_loss', []), label='Validation Loss', color='#e58739')  # ORANGE for VAL
+plt.plot(hist.get('loss', []), label='Train Loss', color='orange')
+plt.plot(hist.get('val_loss', []), label='Validation Loss', color='blue')
 plt.title("Loss over Epochs")
 plt.xlabel("Epoch")
 plt.ylabel("Loss")
@@ -251,11 +251,11 @@ plt.savefig(TRAINING_GRAPHS_PLOT)
 plt.close()
 print(f"[INFO] Training graphs saved to {TRAINING_GRAPHS_PLOT}")
 
-# ---------------- TEST BAR GRAPH - FIXED COLORS + ORDER ----------------
+# ---------------- TEST BAR GRAPH - EXACT FORMAT ----------------
 plt.figure(figsize=(6, 4))
 plt.bar(["Test Accuracy", "Test Loss"],
-        [test_metrics[1], test_metrics[0]],  # acc first, loss second
-        color=["#1f77b4", "#e58739"])  # BLUE=Accuracy, ORANGE=Loss
+        [test_metrics[1], test_metrics[0]],
+        color=["orange", "blue"])
 plt.title("Test Set Metrics")
 plt.ylabel("Value")
 plt.tight_layout()
@@ -264,11 +264,3 @@ plt.close()
 print(f"[INFO] Test bar graph saved to {TEST_BAR_PLOT}")
 
 print("\n✅ COMPLETE SUCCESS!")
-print(f"  📊 {HISTORY_PHASE1_PATH}")
-print(f"  📊 {HISTORY_PHASE2_PATH}")
-print(f"  📊 {HISTORY_FULL_PATH}")
-print(f"  📈 {TEST_JSON_PATH}")
-print(f"  🖼️  {TRAINING_GRAPHS_PLOT}")
-print(f"  🖼️  {TEST_BAR_PLOT}")
-print(f"  💾 {MODEL_BASE_PATH}_phase1_final.weights.h5")
-print(f"\n🎯 Final Results: Phase1 acc={hist1['acc'][-1]:.1%}, Phase2 acc={hist2['acc'][-1]:.1%}")
