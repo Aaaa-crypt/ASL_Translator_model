@@ -7,7 +7,7 @@ from collections import deque
 from tensorflow.keras import layers, models
 
 # -------- CONFIG --------
-MODEL_PATH = r"C:\Users\garga\Documents\Maturarbeit\17_small_dataset\asl_seq_model_phase2.weights.h5"
+MODEL_PATH = r"C:\Users\garga\Documents\Maturarbeit\09_small_dataset\asl_seq_model_phase2.weights.h5"
 SEQUENCES_DIR = r"C:\Users\garga\Documents\Maturarbeit\ASL_Citizen\asl_sequences_mixed"
 FRAMES_PER_CLIP = 12
 IMG_SIZE = (96, 96)

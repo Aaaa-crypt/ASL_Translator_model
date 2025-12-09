@@ -5,7 +5,7 @@ import json
 import matplotlib.pyplot as plt
 
 # ---------------- USER CONFIG ----------------
-OUTPUT_DIR = r"C:\Users\garga\Documents\Maturarbeit\comparison"
+OUTPUT_DIR = r"C:\Users\garga\Documents\Maturarbeit\comparison\v2"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 BAR_PLOT_PATH = os.path.join(OUTPUT_DIR, "relative_accuracy_comparison.png")
@@ -41,13 +41,17 @@ models_info = [
     },
     {
         "model_name": "training_model16",
-        "num_classes": 2728,
+        "num_classes": 200,
         "accuracy": 0.005201560445129871
     },
     {
         "model_name": "training_model19",
-        "num_classes": 2728,
+        "num_classes": 200,
         "accuracy": 0.09102730453014374
+    },{
+        "model_name": "training_model20",
+        "num_classes": 200,
+        "accuracy": 0.09752926230430603 #test accuracy right?
     },
     {
         "model_name": "training_model_debug",
