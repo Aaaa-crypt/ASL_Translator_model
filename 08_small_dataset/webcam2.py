@@ -1,16 +1,18 @@
-# webcam.py
+# webcam2.py
 import cv2
 import numpy as np
 import os
 import tensorflow as tf
 from collections import deque
 from tensorflow.keras import layers, models
+import time
 
 # -------- CONFIG --------
-MODEL_PATH = r"C:\Users\garga\Documents\Maturarbeit\09_small_dataset\asl_seq_model_phase2.weights.h5"
+MODEL_PATH = r"C:\Users\garga\Documents\Maturarbeit\08_small_dataset\asl_seq_model_phase2.weights.h5"
 SEQUENCES_DIR = r"C:\Users\garga\Documents\Maturarbeit\ASL_Citizen\asl_sequences_mixed"
 FRAMES_PER_CLIP = 12
 IMG_SIZE = (96, 96)
+LATENCY = 2.5  # seconds before registering same sign again
 
 # -------- LOAD CLASS NAMES --------
 train_dir = os.path.join(SEQUENCES_DIR, "train")
@@ -58,8 +60,28 @@ print("[INFO] Model loaded successfully.")
 # -------- SETUP WEBCAM --------
 cap = cv2.VideoCapture(0)
 frame_buffer = deque(maxlen=FRAMES_PER_CLIP)
-pred_label = ""
-confidence = 0.0
+
+recognized_words = []
+last_prediction_time = 0
+last_pred_label = ""
+
+# Define window size
+window_width = 1280
+window_height = 480
+half_width = window_width // 2
+
+# Button coordinates
+button_x1, button_y1, button_x2, button_y2 = 10, window_height - 60, 150, window_height - 10
+
+# Mouse callback
+def mouse_callback(event, x, y, flags, param):
+    global recognized_words
+    if event == cv2.EVENT_LBUTTONDOWN:
+        if button_x1 <= x <= button_x2 and button_y1 <= y <= button_y2:
+            recognized_words = []
+
+cv2.namedWindow("ASL Live Prediction")
+cv2.setMouseCallback("ASL Live Prediction", mouse_callback)
 
 print("[INFO] Webcam started. Press 'q' to quit.")
 
@@ -68,10 +90,13 @@ while True:
     if not ret:
         break
 
-    # Preprocess frame
+    # Resize for uniformity
     frame_resized = cv2.resize(frame, IMG_SIZE)
     frame_norm = frame_resized / 255.0
     frame_buffer.append(frame_norm)
+
+    pred_label = ""
+    confidence = 0.0
 
     # Predict only when buffer is full
     if len(frame_buffer) == FRAMES_PER_CLIP:
@@ -81,12 +106,41 @@ while True:
         pred_label = class_names[idx]
         confidence = preds[0][idx]
 
-    # Display prediction
+        # Check latency to avoid double typing
+        current_time = time.time()
+        if pred_label != last_pred_label or (current_time - last_prediction_time) > LATENCY:
+            recognized_words.append(pred_label)
+            last_pred_label = pred_label
+            last_prediction_time = current_time
+
+    # -------- BUILD DISPLAY --------
+    # Resize webcam feed to left half
+    left_frame = cv2.resize(frame, (half_width, window_height))
+    
+    # Create white right half
+    right_frame = np.ones((window_height, half_width, 3), dtype=np.uint8) * 255
+
+    # Display recognized words
+    y0, dy = 50, 40
+    for i, word in enumerate(recognized_words[-10:]):  # show last 10 words
+        y = y0 + i * dy
+        cv2.putText(right_frame, word, (10, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+
+    # Draw Clear button
+    cv2.rectangle(right_frame, (button_x1, button_y1), (button_x2, button_y2), (0, 0, 255), -1)
+    cv2.putText(right_frame, "Clear", (button_x1 + 10, button_y2 - 15),
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
+    # Combine left and right halves
+    combined_frame = np.hstack((left_frame, right_frame))
+
+    # Optionally, overlay current prediction on webcam feed
     if pred_label:
         text = f"{pred_label} ({confidence:.2f})"
-        cv2.putText(frame, text, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(combined_frame, text, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-    cv2.imshow("ASL Live Prediction", frame)
+    # Show combined frame
+    cv2.imshow("ASL Live Prediction", combined_frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
