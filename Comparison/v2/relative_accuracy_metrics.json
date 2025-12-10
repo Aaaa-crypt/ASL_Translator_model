@@ -33,19 +33,13 @@
     "model_name": "training_model16",
     "num_classes": 200,
     "accuracy": 0.005201560445129871,
-    "relative_accuracy": 0.00020257331168831283
+    "relative_accuracy": 0.004836764537702343
   },
   {
     "model_name": "training_model19",
-    "num_classes": 200,
+    "num_classes": 2,
     "accuracy": 0.09102730453014374,
-    "relative_accuracy": 0.08645960254285802
-  },
-  {
-    "model_name": "training_model20",
-    "num_classes": 200,
-    "accuracy": 0.09752926230430603,
-    "relative_accuracy": 0.09299423347166434
+    "relative_accuracy": 0.09069398120947272
   },
   {
     "model_name": "training_model_debug",
