@@ -1,0 +1,58 @@
+[
+  {
+    "model_name": "train_asl_model",
+    "num_classes": 26,
+    "accuracy": 0.28846153846153844,
+    "normalized_accuracy": 0.25999999999999995,
+    "random_baseline": 0.038461538461538464
+  },
+  {
+    "model_name": "train_from_sequences1",
+    "num_classes": 2730,
+    "accuracy": 0.0003351206541992724,
+    "normalized_accuracy": -3.119113742615845e-05,
+    "random_baseline": 0.0003663003663003663
+  },
+  {
+    "model_name": "train_from_sequences5",
+    "num_classes": 200,
+    "accuracy": 0.0043196543119847775,
+    "normalized_accuracy": -0.0006837645105680629,
+    "random_baseline": 0.005
+  },
+  {
+    "model_name": "training_model3",
+    "num_classes": 100,
+    "accuracy": 0.0,
+    "normalized_accuracy": -0.010101010101010102,
+    "random_baseline": 0.01
+  },
+  {
+    "model_name": "training_model4",
+    "num_classes": 100,
+    "accuracy": 0.02368421107530594,
+    "normalized_accuracy": 0.013822435429601957,
+    "random_baseline": 0.01
+  },
+  {
+    "model_name": "training_model16",
+    "num_classes": 200,
+    "accuracy": 0.005201560445129871,
+    "normalized_accuracy": 0.00020257331168831294,
+    "random_baseline": 0.005
+  },
+  {
+    "model_name": "training_model19",
+    "num_classes": 200,
+    "accuracy": 0.09102730453014374,
+    "normalized_accuracy": 0.08645960254285803,
+    "random_baseline": 0.005
+  },
+  {
+    "model_name": "model_kaggle",
+    "num_classes": 47,
+    "accuracy": 0.6100628972053528,
+    "normalized_accuracy": 0.6015860036663387,
+    "random_baseline": 0.02127659574468085
+  }
+]
